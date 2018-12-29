@@ -1,0 +1,11 @@
+cloudpickle
+dateparser
+langdetect
+Markdown
+more-itertools
+python-dateutil
+pytz
+regex
+six
+tzlocal
+pandas
