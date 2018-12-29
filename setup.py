@@ -30,10 +30,7 @@ setup(
         'pytz',
         'regex',
         'six',
-        'tzlocal',
-        'pandas',
-        'numpy',
-        'scikit-learn'
+        'tzlocal'
     ],
     include_package_data=True,
     zip_safe=False
