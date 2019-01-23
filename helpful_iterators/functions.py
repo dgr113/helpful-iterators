@@ -1,5 +1,5 @@
 # coding: utf-8
-
+import json
 import sys
 import os
 import asyncio
@@ -9,6 +9,8 @@ import enum
 import cloudpickle as pickle
 from enum import Enum
 from copy import deepcopy
+from jsonschema import Draft4Validator
+from collections import ChainMap
 from inspect import isgenerator, isgeneratorfunction
 from typing import Pattern, Mapping, Iterable, AnyStr, Any, Dict, Set, Union, Hashable
 from typing import List, Iterator, Generator, Callable, Optional
@@ -21,6 +23,7 @@ from more_itertools import always_iterable, flatten, ilen, first, seekable, spy
 from datetime import datetime, date, time, tzinfo
 from dateparser import parse as dateparse
 from helpful_iterators.type_hints import OneNotIterableType
+
 
 NOT_EMPTY_PATTER = re.compile('[\w|\d]+', flags=re.IGNORECASE)
 
@@ -171,6 +174,43 @@ class CalculableIterFromGen:
         else:
             return self._generator_func(*self._args, **self._kwargs)
 
+
+
+
+def combine_params(
+        schema_path: str,
+        settings_path: Union[str, None] = None,
+        without_none: bool = True,
+        **params: Any
+
+) -> Union[Mapping, None]:
+
+    """ Скомбинировать параметры из json-файла и переданные в <params>
+
+        :param schema_path: Путь к схеме файла json, описывающего параметры
+        :param settings_path: Путь к файлу json, описывающего параметры
+        :param without_none: Пропускать параметры с <None> значениями
+    """
+
+    if without_none:
+        # noinspection PyTypeChecker
+        params = dict(filter(itemgetter(1), params.items()))
+
+    if settings_path:
+        if os.path.isfile(settings_path):
+            with open(schema_path, 'r') as schema_file:
+                with open(settings_path, 'r') as settings_file:
+                    settings_schema = json.load(schema_file)
+                    settings_data = json.load(settings_file)
+
+                    validator = Draft4Validator(settings_schema)
+                    validator.validate(settings_data)
+
+                    params = dict(ChainMap(settings_data, params))
+        else:
+            print('json settings file path received, but not exist', file=sys.stderr)
+
+    return params
 
 
 

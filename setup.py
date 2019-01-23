@@ -30,7 +30,8 @@ setup(
         'pytz',
         'regex',
         'six',
-        'tzlocal'
+        'tzlocal',
+        'jsonschema'
     ],
     include_package_data=True,
     zip_safe=False
